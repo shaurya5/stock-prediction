@@ -89,14 +89,14 @@ def probabilityCalculations(data):
 	price_series_cumulative = []
 
 	for i in range(number_of_trials):
-	    daily_return_percentages = np.random.normal(cagr/number_of_trading_days, stdev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
-	    price_series = [data[-1]]
+		daily_return_percentages = np.random.normal(cagr/number_of_trading_days, stdev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
+		price_series = [data[-1]]
 
-	    for j in daily_return_percentages:
-	        price_series.append(price_series[-1] * j)
+		for j in daily_return_percentages:
+			price_series.append(price_series[-1] * j)
 
-	    price_series_cumulative.append(price_series)
-	    closing_prices.append(price_series[-1])
+		price_series_cumulative.append(price_series)
+		closing_prices.append(price_series[-1])
 
 	return number_of_trials, price_series_cumulative, closing_prices
 
@@ -132,12 +132,12 @@ def main():
 	# print(data)
 	number_of_trials, price_series_cumulative, closing_prices = probabilityCalculations(data)
 	# print(price_series_cumulative)
-	showAdjCloseGraph(data)
-	plotDailyLogReturns(data)
-	# monteCarloSim(number_of_trials, price_series_cumulative)
-	plotReturnHist(closing_prices)
-	plotModifiedHist(data, closing_prices)
-	showExpectedPrice(closing_prices)
+	# showAdjCloseGraph(data)
+	# plotDailyLogReturns(data)
+	monteCarloSim(number_of_trials, price_series_cumulative)
+	# plotReturnHist(closing_prices)
+	# plotModifiedHist(data, closing_prices)
+	# showExpectedPrice(closing_prices)
 
 
 if __name__ == '__main__':
