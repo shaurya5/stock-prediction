@@ -115,10 +115,16 @@ def probabilityCalculations(data):
 	for i in range(number_of_trials):
 		daily_return_percentages = np.random.normal(cagr/number_of_trading_days, stdev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
 		price_series = [data[-1]]
+		daily_return_percentages = np.random.normal(cagr/number_of_trading_days, stdev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
+		price_series = [data[-1]]
 
 		for j in daily_return_percentages:
 			price_series.append(price_series[-1] * j)
+		for j in daily_return_percentages:
+			price_series.append(price_series[-1] * j)
 
+		price_series_cumulative.append(price_series)
+		closing_prices.append(price_series[-1])
 		price_series_cumulative.append(price_series)
 		closing_prices.append(price_series[-1])
 
