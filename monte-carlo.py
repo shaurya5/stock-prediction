@@ -17,15 +17,39 @@ def initWindow():
 	window = sg.Window('Stock Prediction', layout)
 
 	while True:
-			event, values = window.read()
-			if event == sg.WIN_CLOSED or event == 'Cancel': # if user closes window or clicks cancel
-					break
-			else:
-				print('You entered', values[0])
-				break
+		event, values = window.read()
+		if event == sg.WIN_CLOSED or event == 'Cancel': # if user closes window or clicks cancel
+			break
+		else:
+			print('You entered', values[0])
+			break
 	
 	window.close()
 	return values[0]
+
+def graphOptionsWindow(data, closing_prices):
+	layout = [
+				[sg.Button('Adjusted Closing Graph')],
+				[sg.Button('Daily Log Returns')],
+				[sg.Button('50 day return history')],
+				[sg.Button('Modified Histogram (based on top percentiles)')]
+			]
+	window = sg.Window('Graph Selection', layout)
+
+	while True:
+		event, values = window.read()
+		if event == sg.WIN_CLOSED: # if user closes window or clicks cancel
+			break
+		if event == 'Adjusted Closing Graph':
+			showAdjCloseGraph(data)
+		if event == 'Daily Log Returns':
+			plotDailyLogReturns(data)
+		if event == '50 day return history':
+			plotReturnHist(closing_prices)
+		if event == 'Modified Histogram (based on top percentiles)':
+			plotModifiedHist(data, closing_prices)
+	
+	window.close()
 
 def downloadStockData(value):
 	start = datetime(2019, 1, 1)
@@ -89,14 +113,14 @@ def probabilityCalculations(data):
 	price_series_cumulative = []
 
 	for i in range(number_of_trials):
-	    daily_return_percentages = np.random.normal(cagr/number_of_trading_days, stdev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
-	    price_series = [data[-1]]
+		daily_return_percentages = np.random.normal(cagr/number_of_trading_days, stdev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
+		price_series = [data[-1]]
 
-	    for j in daily_return_percentages:
-	        price_series.append(price_series[-1] * j)
+		for j in daily_return_percentages:
+			price_series.append(price_series[-1] * j)
 
-	    price_series_cumulative.append(price_series)
-	    closing_prices.append(price_series[-1])
+		price_series_cumulative.append(price_series)
+		closing_prices.append(price_series[-1])
 
 	return number_of_trials, price_series_cumulative, closing_prices
 
@@ -131,13 +155,14 @@ def main():
 	data = downloadStockData(stockName)
 	# print(data)
 	number_of_trials, price_series_cumulative, closing_prices = probabilityCalculations(data)
+	graphOptionsWindow(data, closing_prices)	
 	# print(price_series_cumulative)
-	showAdjCloseGraph(data)
-	plotDailyLogReturns(data)
+	# showAdjCloseGraph(data)
+	# plotDailyLogReturns(data)
 	# monteCarloSim(number_of_trials, price_series_cumulative)
-	plotReturnHist(closing_prices)
-	plotModifiedHist(data, closing_prices)
-	showExpectedPrice(closing_prices)
+	# plotReturnHist(closing_prices)
+	# plotModifiedHist(data, closing_prices)
+	# showExpectedPrice(closing_prices)
 
 
 if __name__ == '__main__':
