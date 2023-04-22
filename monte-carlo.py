@@ -1,13 +1,16 @@
 from datetime import datetime
 from datetime import date
+# import PyQt5
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+# import matplotlib
 import seaborn as sns
 # from scipy.stats import norm
 import yfinance as yf
 import math
 import PySimpleGUI as sg
+# matplotlib.use('Qt5Agg')
 
 def initWindow():
 	sg.theme('DarkAmber')
@@ -84,15 +87,15 @@ def showAdjCloseGraph(data):
 	# ticker = values[0]
 	# ticker = inputText
 	data.plot(figsize=(15,6))
-	plt.show()
+	plt.show(block=False)
 
 # Plot daily log returns
 def plotDailyLogReturns(data):
 	log_returns = np.log(1 + data.pct_change())
-	sns.distplot(log_returns.iloc[1:])
+	sns.displot(log_returns.iloc[1:])
 	plt.xlabel("Daily Return")
 	plt.ylabel("Frequency")
-	plt.show()
+	plt.show(block=False)
 
 # Probablitiy calculations
 def probabilityCalculations(data):
