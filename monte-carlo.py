@@ -70,10 +70,9 @@ def probabilityCalculations(adj_data):
     drift = u - (0.5*var)
     stdev = log_returns.std()
     # CAGR and initializations
-    days = 50
     number_of_trials = 3000
     time_elapsed = (adj_data.index[-1] - adj_data.index[0]).days
-    total_growth = (adj_data[-1] / adj_data[1])
+    total_growth = (adj_data[-1] / adj_data[1]) # current price / first price
     number_of_years = time_elapsed / 365.0
     cagr = total_growth ** (1/number_of_years) - 1
     closing_prices = []
@@ -83,19 +82,15 @@ def probabilityCalculations(adj_data):
     for i in range(number_of_trials):
         daily_return_percentages = np.random.normal(cagr/number_of_trading_days, stdev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
         price_series = [adj_data[-1]]
-        # daily_return_percentages = np.random.normal(cagr/number_of_trading_days, stdev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
-        # price_series = [adj_data[-1]]
 
         for j in daily_return_percentages:
             price_series.append(price_series[-1] * j)
-        # for j in daily_return_percentages:
-        #     price_series.append(price_series[-1] * j)
 
-        price_series_cumulative.append(price_series)
-        closing_prices.append(price_series[-1])
         # price_series_cumulative.append(price_series)
-        # closing_prices.append(price_series[-1])
-
+        closing_prices.append(price_series[-1])
+        plt.plot(price_series)
+    
+    plt.show()
     return number_of_trials, price_series_cumulative, closing_prices
 
 # Daily return percentages for the next 50 days and Monte Carlo Sim
