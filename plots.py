@@ -44,7 +44,6 @@ def MACDplot(data):
     plt.plot(data.index,signal,color='blue',label='Signal')
     plt.show()
 
-    # Plot daily log returns
 def plotDailyLogReturns(adj_data):
     log_returns = np.log(1 + adj_data.pct_change())
     sns.histplot(log_returns.iloc[1:])
@@ -54,4 +53,14 @@ def plotDailyLogReturns(adj_data):
 
 def showAdjCloseGraph(adj_data):
     adj_data.plot(figsize=(15,6))
+    plt.show()
+
+# Modified histogram (Top & bottom 10 percentiles)
+def plotModifiedHist(adj_data, closing_prices):
+    top_ten = np.percentile(closing_prices,100-10)
+    bottom_ten = np.percentile(closing_prices,10)
+    plt.hist(closing_prices,bins=40)
+    plt.axvline(top_ten, color='r', linestyle='dashed', linewidth=2)
+    plt.axvline(bottom_ten, color='r', linestyle='dashed', linewidth=2)
+    plt.axvline(adj_data[-1], color='g', linestyle='dashed', linewidth=2)
     plt.show()

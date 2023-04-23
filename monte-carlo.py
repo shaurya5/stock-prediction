@@ -1,10 +1,8 @@
 from datetime import datetime
 from datetime import date
-# import PyQt5
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-# import matplotlib
 import seaborn as sns
 import yfinance as yf
 import math
@@ -12,6 +10,8 @@ import PySimpleGUI as sg
 import matplotlib.dates as mdates
 import datetime as dt
 from plots import *
+import matplotlib as mpl
+mpl.use('tkagg')
 
 def initWindow():
     sg.theme('DarkAmber')
@@ -36,7 +36,8 @@ def graphOptionsWindow(data, adj_data, closing_prices):
                 [sg.Button('Adjusted Closing Graph')],
                 [sg.Button('Daily Log Returns')],
                 [sg.Button('RSI Plot')],
-                [sg.Button('MACD Plot')]
+                [sg.Button('MACD Plot')],
+                [sg.Button('Modified Histogram')]
             ]
     window = sg.Window('Graph Selection', layout)
 
@@ -52,6 +53,8 @@ def graphOptionsWindow(data, adj_data, closing_prices):
             RSIplot(data)
         if event == 'MACD Plot':
             MACDplot(data)
+        if event == 'Modified Histogram':
+            plotModifiedHist(adj_data, closing_prices)
     
     window.close()
 
@@ -103,16 +106,6 @@ def monteCarloSim(number_of_trials, price_series_cumulative):
 def showExpectedPrice(closing_prices):
     mean_end_price = round(np.mean(closing_prices), 2)
     return mean_end_price
-
-# Modified histogram (Top & bottom 10 percentiles)
-def plotModifiedHist(adj_data, closing_prices):
-    top_ten = np.percentile(closing_prices,100-10)
-    bottom_ten = np.percentile(closing_prices,10)
-    plt.hist(closing_prices,bins=40)
-    plt.axvline(top_ten, color='r', linestyle='dashed', linewidth=2)
-    plt.axvline(bottom_ten, color='r', linestyle='dashed', linewidth=2)
-    plt.axvline(adj_data[-1], color='g', linestyle='dashed', linewidth=2)
-    plt.show()
 
 def main():
     stockName = initWindow()
