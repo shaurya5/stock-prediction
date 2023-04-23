@@ -10,6 +10,7 @@ import random
 import operator
 import pandas as pd
 import seaborn as sns
+from plots import *
 
 def initWindow():
 	sg.theme('DarkAmber')
@@ -60,56 +61,6 @@ def downloadStockData(value):
     data = yf.download(value, start, end)
     return adj_data, data
 
-def showAdjCloseGraph(adj_data):
-    # ticker = values[0]
-    # ticker = inputText
-    adj_data.plot(figsize=(15,6))
-    plt.show()
-
-# Plot daily log returns
-def plotDailyLogReturns(adj_data):
-    log_returns = np.log(1 + adj_data.pct_change())
-    sns.displot(log_returns.iloc[1:])
-    plt.xlabel("Daily Return")
-    plt.ylabel("Frequency")
-    plt.show()
-
-def RSIplot(data):
-    delta = data["Adj Close"].diff(1)
-    delta.dropna(inplace=True)
-
-    positive=delta.copy()
-    negative=delta.copy()
-    positive[positive < 0]=0
-    negative[negative > 0]=0
-
-    days=14
-    average_gain = positive.rolling(window=days).mean();
-    average_loss = abs(negative.rolling(window=days).mean());
-
-    relative_strength = average_gain / average_loss
-    RSI = 100.0 - (100.0 / (1.0 + relative_strength))
-
-    combined= pd.DataFrame()
-    combined['Adj Close'] = data['Adj Close']
-    combined['RSI'] = RSI
-
-    plt.plot(combined.index,combined['RSI'],color='red')
-    plt.axhline(y=30, color='blue', linestyle='dashed')
-    plt.axhline(y=70, color='blue', linestyle='dashed')
-    plt.grid(True,color='#555555')
-    plt.show()
-
-def MACDplot(data):
-    shortEMA = data["Close"].ewm(span=12,adjust=False).mean()
-    longEMA = data["Close"].ewm(span=26,adjust=False).mean()
-    MACD = shortEMA - longEMA
-    signal = MACD.ewm(span=9, adjust=False).mean()
-    plt.figure(figsize=(12,8))
-    plt.plot(data.index,MACD,color='red',label='MACD')
-    plt.plot(data.index,signal,color='blue',label='Signal')
-    plt.show()
-
 NO_OF_GENERATIONS = 4
 MUTATION_RATE = 5
 POPULATION_SIZE = 750
@@ -159,21 +110,21 @@ class TrainingData():
     def generateData(self, data):
         closes = data['Adj Close'].tolist()
         opens = data['Open'].tolist()
-        file = open('stock_data', 'w')
+        # file = open('stock_data', 'w')
 
         for i in range(len(data)-2):
             dayChangeVal = (float(closes[i])-float(opens[i+1])) / 100
             nextDayChangeVal = (float(closes[i+1]) - float(opens[i+2])) / 100
             profitVal = float(opens[i]) - float(opens[i+1])
 
-            file.write(str(dayChangeVal) + ' ' + str(nextDayChangeVal) + ' ' + str(profitVal) + '\n')
+            # file.write(str(dayChangeVal) + ' ' + str(nextDayChangeVal) + ' ' + str(profitVal) + '\n')
             self.dayChange.append(dayChangeVal)
             self.nextDayChange.append(nextDayChangeVal)
             self.profit.append(profitVal)
         
         global DataSize
         DataSize = len(self.dayChange)
-        file.close()
+        # file.close()
 
     def populationInit(self):
         mean = 0
@@ -266,21 +217,19 @@ class TrainingData():
             for i in range(len(children)):
                 if random.randint(0,999) % 100 <= z:
                     children[i].mutate()
-                self.population[i] = children[i]
+                try:
+                    self.population[i] = children[i]
+                except IndexError:
+                    break
 
             print(f'Children {len(children)}')
 
             for i in range(len(children), len(self.population), 1):
-                self.population[i] = self.nextGen[i-len(children)]
-        # for i in range(len(children)):
-        #     if random.randint(0,999)%100 <=z:
-        #         children[i].mutate()
-        #     self.population[i] = children[i]
-        
-        # for i in range(len(children),len(self.population),1):
-        #     self.population[i] = self.nextGen[i-len(children)]
+                if i > len(children):
+                    self.population[i] = self.nextGen[i-len(children)]
+                else:
+                    break
                
-            
             self.exists()
             self.fitnessFunction()
             self.population.sort(key=operator.attrgetter('score'))
@@ -301,18 +250,24 @@ class TrainingData():
         i=1
         size=len(buyData)
         while i < NumReturn+1:
-          index = size-i
-          print("Minimum %f | Maximum %f | Previous Min %f | Previous Max %f | Score %f" % (buyData[index].min, buyData[index].max, buyData[index].prev_min, buyData[index].prev_max, buyData[index].score))
-          buyOutput.append(buyData[index].score)
-          i += 1
-        # print("The best Data when shorting" % (NumReturn))
+            index = size-i
+            try:
+                print("Minimum %f | Maximum %f | Previous Min %f | Previous Max %f | Score %f" % (buyData[index].min, buyData[index].max, buyData[index].prev_min, buyData[index].prev_max, buyData[index].score))
+                buyOutput.append(buyData[index].score)
+            except IndexError:
+                pass
+            i += 1
+            # print("The best Data when shorting" % (NumReturn))
         i = 1
         size = len(sellData)
         while i < NumReturn+1:
-          index = size-i
-          # print("Minimum %f | Maximum %f | Previous Min %f | Previous Max %f | Score %f" % (sellData[index].min, sellData[index].max, sellData[index].prev_min, sellData[index].prev_max, sellData[index].score))
-          sellOutput.append(sellData[index].score)
-          i += 1
+            try:
+                index = size-i
+                # print("Minimum %f | Maximum %f | Previous Min %f | Previous Max %f | Score %f" % (sellData[index].min, sellData[index].max, sellData[index].prev_min, sellData[index].prev_max, sellData[index].score))
+                sellOutput.append(sellData[index].score)
+            except:
+                pass
+            i += 1
         
         print('output scores when we buy today',buyData)
         print('output scores when we short today',sellData)
@@ -323,9 +278,9 @@ class TrainingData():
             if buyOutput[i]>sellOutput[i]:
                 my_list.append(1)
             else: my_list.append(0)
-        avg = sum(my_list)/len(my_list)
+        avg=sum(my_list)/len(my_list)
         print(my_list)
-        if avg >= 0.5:
+        if avg>=0.5:
             print('Buy the Stock')
         else:
             print('Short/Sell the Stock')

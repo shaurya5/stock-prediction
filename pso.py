@@ -11,6 +11,7 @@ import PySimpleGUI as sg
 import numpy as np
 from datetime import datetime
 from datetime import date
+from plots import *
 
 def initWindow():
     sg.theme('DarkAmber')
@@ -63,54 +64,6 @@ def downloadStockData(value):
     # adj_data = yf.download(value, start, end)['Adj Close']
     data = yf.download(value, start, end)
     return data
-
-def showAdjCloseGraph(adj_data):
-    adj_data.plot(figsize=(15,6))
-    plt.show()
-
-# Plot daily log returns
-def plotDailyLogReturns(adj_data):
-    log_returns = np.log(1 + adj_data.pct_change())
-    sns.displot(log_returns.iloc[1:])
-    plt.xlabel("Daily Return")
-    plt.ylabel("Frequency")
-    plt.show()
-
-def RSIplot(data):
-    delta = data["Adj Close"].diff(1)
-    delta.dropna(inplace=True)
-
-    positive=delta.copy()
-    negative=delta.copy()
-    positive[positive < 0]=0
-    negative[negative > 0]=0
-
-    days=14
-    average_gain = positive.rolling(window=days).mean();
-    average_loss = abs(negative.rolling(window=days).mean());
-
-    relative_strength = average_gain / average_loss
-    RSI = 100.0 - (100.0 / (1.0 + relative_strength))
-
-    combined= pd.DataFrame()
-    combined['Adj Close'] = data['Adj Close']
-    combined['RSI'] = RSI
-
-    plt.plot(combined.index,combined['RSI'],color='red')
-    plt.axhline(y=30, color='blue', linestyle='dashed')
-    plt.axhline(y=70, color='blue', linestyle='dashed')
-    plt.grid(True,color='#555555')
-    plt.show()
-
-def MACDplot(data):
-    shortEMA = data["Close"].ewm(span=12,adjust=False).mean()
-    longEMA = data["Close"].ewm(span=26,adjust=False).mean()
-    MACD = shortEMA - longEMA
-    signal = MACD.ewm(span=9, adjust=False).mean()
-    plt.figure(figsize=(12,8))
-    plt.plot(data.index,MACD,color='red',label='MACD')
-    plt.plot(data.index,signal,color='blue',label='Signal')
-    plt.show()
 
 timestamps_buy = []
 timestamps_sell = []
